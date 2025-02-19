@@ -1,22 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:paint_v2/domain/model/ShapeType.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:ui' as ui;
 
 class Shapeselector extends StatefulWidget {
   final void Function(Color) onSelectColor;
   final void Function(ShapeType?) onSelectShape;
+  final void Function(ui.Image) onImagePicked;
   final ShapeType? selectedShape;
 
   const Shapeselector(
       {super.key,
       required this.onSelectColor,
       required this.onSelectShape,
-      required this.selectedShape});
+      required this.selectedShape,
+      required this.onImagePicked});
 
   @override
   State<Shapeselector> createState() => _ShapeselectorState();
 }
 
 class _ShapeselectorState extends State<Shapeselector> {
+  Future _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final bytes = await pickedFile!.readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+
+      widget.onImagePicked(frame.image);
+      widget.onSelectShape(null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -52,7 +71,9 @@ class _ShapeselectorState extends State<Shapeselector> {
           icon: Icon(Icons.text_fields),
         ),
         IconButton(
-          onPressed: () {},
+          onPressed: () async {
+            _pickImage();
+          },
           icon: Icon(Icons.image_outlined),
         ),
         IconButton(

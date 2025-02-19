@@ -1,8 +1,11 @@
 import 'dart:math';
+import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:paint_v2/domain/model/Circle.dart';
 import 'package:paint_v2/domain/model/Line.dart';
+import 'package:paint_v2/domain/model/Photo.dart';
 import 'package:paint_v2/domain/model/Shape.dart';
 import 'package:paint_v2/domain/model/ShapeType.dart';
 import 'package:paint_v2/domain/model/TextShape.dart';
@@ -41,7 +44,20 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
 
   }
 
-  void onSave(Offset offset) {
+  void pickImage(ui.Image image) {
+
+    var newImg = Photo(
+      start: Offset.zero,
+      img: image,
+      isFinished: true
+    );
+
+    setState(() {
+      shapes.add(newImg);      
+    });
+  }
+
+  void onSaveText(Offset offset) {
     setState(() {
       shapes.add(TextShape(
           content: _controller.text,
@@ -114,6 +130,10 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
     }
   }
 
+  void _drawImage(ScaleUpdateDetails details) {
+
+  }
+
   void _updateRect(ScaleUpdateDetails details) {
     if (shapes.isNotEmpty && shapes.last is Rectangle) {
       if (!shapes.last.isFinished) {
@@ -178,7 +198,7 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
                   builder: (context) {
                     return AddTextDialog(
                       controller: _controller,
-                      onSave: () => onSave(details.localPosition),
+                      onSave: () => onSaveText(details.localPosition),
                       onCancel: () => Navigator.of(context).pop(),
                     );
                   });
@@ -248,7 +268,8 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
           child: Shapeselector(
             onSelectColor: handleColorSelect,
             onSelectShape: handleShapeSelect,
-            selectedShape: selectedShape
+            selectedShape: selectedShape,
+            onImagePicked: pickImage,
           )
         ),
         Positioned(
