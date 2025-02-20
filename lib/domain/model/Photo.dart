@@ -13,7 +13,21 @@ class Photo extends Shape {
 
   @override
   void draw(Canvas canvas, Size size) {
-    canvas.drawImage(img, start, Paint());
+    canvas.save(); // Zapisz stan canvasu
+    canvas.translate(start.dx, start.dy); // Przesunięcie do punktu startowego
+    canvas.scale(scale, scale); // Skalowanie
+    canvas.rotate(rotation); // Obrót
+    canvas.translate(-start.dx, -start.dy);
+
+    canvas.drawImage(img, Offset.zero, Paint());
+
+    canvas.restore();
+  }
+
+  @override
+  void transform(double scale, double rotation) {
+    this.scale *= scale;
+    this.rotation *= rotation;
   }
 
   @override
@@ -23,6 +37,9 @@ class Photo extends Shape {
 
   @override // isnt needed bc not movable
   bool cointainsTouchPoint(Offset offset) {
-    return false;
+    return offset.dx > start.dx &&
+        offset.dx < img.width + start.dx &&
+        offset.dy > start.dy &&
+        offset.dy < img.height + start.dy;
   }
 }

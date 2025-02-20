@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:paint_v2/domain/model/Shape.dart';
 
-
 class Circle extends Shape {
   Offset center;
   double radius;
@@ -27,11 +26,26 @@ class Circle extends Shape {
   }
 
   @override
+  void transform(double scale, double rotation) {
+    this.scale *= scale;
+    this.rotation *= rotation;
+  }
+
+  @override
   void draw(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke;
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy); // Przesunięcie do środka figury
+    canvas.scale(scale, scale); // Skalowanie
+    canvas.rotate(rotation); // Obrót
+    canvas.translate(-center.dx, -center.dy);
+
     canvas.drawCircle(center, radius, paint);
+
+    canvas.restore();
   }
 
   @override

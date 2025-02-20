@@ -26,8 +26,8 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
   Color selectedColor = Colors.black;
   Color pickerColor = Colors.black;
   final _controller = TextEditingController();
-  //double _previousScale = 1.0;
-  //double _previousRotation = 0.0;
+  double _previousScale = 1.0;
+  double _previousRotation = 0.0;
 
   bool isGestureStarted = false;
 
@@ -40,20 +40,13 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
     });
   }
 
-  void handleColorSelect(Color color) {
-
-  }
+  void handleColorSelect(Color color) {}
 
   void pickImage(ui.Image image) {
-
-    var newImg = Photo(
-      start: Offset.zero,
-      img: image,
-      isFinished: true
-    );
+    var newImg = Photo(start: Offset.zero, img: image, isFinished: true);
 
     setState(() {
-      shapes.add(newImg);      
+      shapes.add(newImg);
     });
   }
 
@@ -130,10 +123,6 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
     }
   }
 
-  void _drawImage(ScaleUpdateDetails details) {
-
-  }
-
   void _updateRect(ScaleUpdateDetails details) {
     if (shapes.isNotEmpty && shapes.last is Rectangle) {
       if (!shapes.last.isFinished) {
@@ -205,22 +194,6 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
             }
           },
           onScaleStart: (ScaleStartDetails details) {
-            if (selectedElementIndex != null) {
-              //_previousScale = shapes[selectedElementIndex!].scale;
-              //_previousRotation = shapes[selectedElementIndex!].rotation;
-            }
-            //           if(selectedElementIndex != null) {
-            //             _previousScale = shapes[selectedElementIndex!].scale;
-            //             _previousRotation = shapes[selectedElementIndex!].rotation;
-            //           }
-            //         },
-            //         onScaleUpdate: (ScaleUpdateDetails details) {
-            //           setState(() {
-            //             shapes[selectedElementIndex!].scale = _previousScale * details.scale;
-            //             shapes[selectedElementIndex!].rotation = _previousRotation + details.rotation;
-            //           });
-            //         },
-
             if (selectedElementIndex == null) {
               Offset start = details.focalPoint;
 
@@ -229,7 +202,10 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
                 for (int i = shapes.length - 1; i >= 0; i--) {
                   if (shapes[i].cointainsTouchPoint(start)) {
                     selectedElementIndex = i;
-                    print(selectedElementIndex);
+
+                    _previousRotation = shapes[i].rotation;
+                    _previousScale = shapes[i].scale;
+
                     break;
                   }
                 }
@@ -240,12 +216,15 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
             if (selectedElementIndex != null) {
               setState(() {
                 shapes[selectedElementIndex!].move(details.focalPointDelta);
+                shapes[selectedElementIndex!].scale = _previousScale * details.scale;
+                shapes[selectedElementIndex!].rotation = _previousRotation + details.rotation;
+
+                print(details.scale);
+                print(details.rotation);
               });
             } else {
               drawShape(details);
             }
-
-            //print(selectedElementIndex);
           },
           onScaleEnd: (ScaleEndDetails details) {
             setState(() {
@@ -263,15 +242,14 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
           ),
         ),
         Positioned(
-          top: 16,
-          right: 16,
-          child: Shapeselector(
-            onSelectColor: handleColorSelect,
-            onSelectShape: handleShapeSelect,
-            selectedShape: selectedShape,
-            onImagePicked: pickImage,
-          )
-        ),
+            top: 16,
+            right: 16,
+            child: Shapeselector(
+              onSelectColor: handleColorSelect,
+              onSelectShape: handleShapeSelect,
+              selectedShape: selectedShape,
+              onImagePicked: pickImage,
+            )),
         Positioned(
             top: 16,
             left: 16,

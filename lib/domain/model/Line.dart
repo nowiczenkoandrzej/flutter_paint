@@ -26,6 +26,11 @@ class Line extends Shape {
     }
   }
 
+  @override
+  void transform(double scale, double rotation) {
+    
+  }
+
   @override // not movable
   void move(Offset offset) {
     return;

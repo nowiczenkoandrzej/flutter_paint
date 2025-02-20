@@ -38,6 +38,12 @@ class TextShape extends Shape {
   }
 
   @override
+  void transform(double scale, double rotation) {
+    this.scale *= scale;
+    this.rotation *= rotation;
+  }
+
+  @override
   void draw(Canvas canvas, Size size) {
     const textStyle = TextStyle(
       color: Colors.black,
@@ -55,7 +61,17 @@ class TextShape extends Shape {
       minWidth: 0,
       maxWidth: size.width,
     );
+    canvas.save(); // Zapisz stan canvasu
+    canvas.translate(start.dx, start.dy); // Przesunięcie do punktu startowego
+    canvas.scale(scale, scale); // Skalowanie
+    canvas.rotate(rotation); // Obrót
+    canvas.translate(
+        -start.dx, -start.dy); // Powrót do oryginalnego układu współrzędnych
+
+    // Narysuj tekst
     textPainter.paint(canvas, start);
+
+    canvas.restore();
   }
 
   @override
