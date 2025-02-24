@@ -31,6 +31,8 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
 
   bool isGestureStarted = false;
 
+  Offset? lastOffset;
+
   List<Shape> shapes = [];
   List<Shape> undos = [];
 
@@ -201,7 +203,9 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
               if (selectedShape == null) {
                 for (int i = shapes.length - 1; i >= 0; i--) {
                   if (shapes[i].cointainsTouchPoint(start)) {
-                    selectedElementIndex = i;
+                    setState(() {
+                      selectedElementIndex = i;
+                    });
 
                     _previousRotation = shapes[i].rotation;
                     _previousScale = shapes[i].scale;
@@ -216,8 +220,12 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
             if (selectedElementIndex != null) {
               setState(() {
                 shapes[selectedElementIndex!].move(details.focalPointDelta);
-                shapes[selectedElementIndex!].scale = _previousScale * details.scale;
-                shapes[selectedElementIndex!].rotation = _previousRotation + details.rotation;
+                shapes[selectedElementIndex!].scale =
+                    _previousScale * details.scale;
+                shapes[selectedElementIndex!].rotation =
+                    _previousRotation + details.rotation;
+
+                lastOffset = details.focalPoint;
 
                 print(details.scale);
                 print(details.rotation);
@@ -227,14 +235,27 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
             }
           },
           onScaleEnd: (ScaleEndDetails details) {
-            setState(() {
-              shapes = shapes;
-            });
-            undos.clear();
-            selectedElementIndex = null;
-            if (shapes.isNotEmpty) shapes.last.isFinished = true;
+            // setState(() {
+            //   shapes = shapes;
+            // });
 
+            if (selectedElementIndex != null &&
+                lastOffset != null &&
+                lastOffset!.dx > MediaQuery.of(context).size.width - 40 &&
+                lastOffset!.dy > MediaQuery.of(context).size.height - 40) {
+              setState(() {
+                shapes.removeAt(selectedElementIndex!);
+                
+              });
+            }
+            setState(() {
+              selectedElementIndex = null;              
+            });
+            if (shapes.isNotEmpty) shapes.last.isFinished = true;
+            lastOffset = null;
             isGestureStarted = false;
+            undos.clear();
+
           },
           child: CustomPaint(
             size: Size.infinite,
@@ -277,7 +298,15 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
                   });
                 },
               ),
-            ]))
+            ])),
+        Positioned(
+            bottom: 20,
+            right: 20,
+            child: Column(
+              children: [
+                if (selectedElementIndex != null) Icon(Icons.delete),
+              ],
+            )),
       ]),
     );
   }
