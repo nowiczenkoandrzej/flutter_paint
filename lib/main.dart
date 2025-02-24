@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         body: FullScreenCanvas(),
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:paint_v2/domain/model/ShapeType.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -9,13 +10,15 @@ class Shapeselector extends StatefulWidget {
   final void Function(ShapeType?) onSelectShape;
   final void Function(ui.Image) onImagePicked;
   final ShapeType? selectedShape;
+  final Color selectedColor;
 
   const Shapeselector(
       {super.key,
       required this.onSelectColor,
       required this.onSelectShape,
       required this.selectedShape,
-      required this.onImagePicked});
+      required this.onImagePicked,
+      required this.selectedColor});
 
   @override
   State<Shapeselector> createState() => _ShapeselectorState();
@@ -34,6 +37,28 @@ class _ShapeselectorState extends State<Shapeselector> {
       widget.onImagePicked(frame.image);
       widget.onSelectShape(null);
     }
+  }
+
+  void _showColorPicker() {
+    showDialog(
+        context: context,
+        builder: (BuildContext content) {
+          return AlertDialog(
+            title: const Text('Pick a color'),
+            content: SingleChildScrollView(
+              child: ColorPicker(
+                  pickerColor: widget.selectedColor,
+                  onColorChanged: widget.onSelectColor),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Ok'))
+            ],
+          );
+        });
   }
 
   @override
@@ -61,7 +86,9 @@ class _ShapeselectorState extends State<Shapeselector> {
                           leading: Icon(Icons.new_label), title: Text('New'))),
                 ]),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            _showColorPicker();
+          },
           icon: Icon(Icons.color_lens),
         ),
         IconButton(

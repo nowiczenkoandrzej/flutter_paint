@@ -35,7 +35,8 @@ class Circle extends Shape {
   void draw(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
 
     canvas.save();
     canvas.translate(center.dx, center.dy); // Przesunięcie do środka figury

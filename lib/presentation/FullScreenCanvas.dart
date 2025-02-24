@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -42,7 +41,11 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
     });
   }
 
-  void handleColorSelect(Color color) {}
+  void handleColorSelect(Color color) {
+    setState(() {
+      selectedColor = color;
+    });
+  }
 
   void pickImage(ui.Image image) {
     var newImg = Photo(start: Offset.zero, img: image, isFinished: true);
@@ -99,14 +102,14 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
       } else {
         shapes.add(Line(
             points: [details.localFocalPoint],
-            color: Colors.black,
+            color: selectedColor,
             strokeWidth: 5,
             isFinished: false));
       }
     } else {
       shapes.add(Line(
           points: [details.localFocalPoint],
-          color: Colors.black,
+          color: selectedColor,
           strokeWidth: 5,
           isFinished: false));
     }
@@ -245,17 +248,15 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
                 lastOffset!.dy > MediaQuery.of(context).size.height - 40) {
               setState(() {
                 shapes.removeAt(selectedElementIndex!);
-                
               });
             }
             setState(() {
-              selectedElementIndex = null;              
+              selectedElementIndex = null;
             });
             if (shapes.isNotEmpty) shapes.last.isFinished = true;
             lastOffset = null;
             isGestureStarted = false;
             undos.clear();
-
           },
           child: CustomPaint(
             size: Size.infinite,
@@ -263,16 +264,17 @@ class _FullScreenCanvasState extends State<FullScreenCanvas> {
           ),
         ),
         Positioned(
-            top: 16,
+            top: 36,
             right: 16,
             child: Shapeselector(
               onSelectColor: handleColorSelect,
               onSelectShape: handleShapeSelect,
               selectedShape: selectedShape,
               onImagePicked: pickImage,
+              selectedColor: selectedColor,
             )),
         Positioned(
-            top: 16,
+            top: 36,
             left: 16,
             child:
                 Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
